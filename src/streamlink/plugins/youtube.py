@@ -285,9 +285,10 @@ class YouTube(Plugin):
             count += 1
             params = {"video_id": video_id}
             params.update(_params)
-
+            #print(self._video_info_url, params)
             res = self.session.http.get(self._video_info_url, params=params)
             info_parsed = parse_query(res.content if is_py2 else res.text, name="config", schema=_config_schema)
+            #print(info_parsed)
             player_response = info_parsed.get("player_response", {})
             playability_status = player_response.get("playabilityStatus", {})
             if (playability_status.get("status") != "OK"):
