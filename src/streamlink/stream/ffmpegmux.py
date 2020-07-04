@@ -50,6 +50,12 @@ class MuxedStream(Stream):
 
         return FFMPEGMuxer(self.session, *fds, **self.options).open()
 
+    def __json__(self):
+        return dict(substreams=self.substreams,
+                    subtitles=self.subtitles,
+                    options=self.options,
+                    **Stream.__json__(self))
+
     @classmethod
     def is_usable(cls, session):
         return FFMPEGMuxer.is_usable(session)
