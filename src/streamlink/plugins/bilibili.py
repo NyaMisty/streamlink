@@ -1,5 +1,6 @@
 import logging
 import re
+import time
 
 from streamlink.compat import urlparse
 from streamlink.plugin import Plugin, PluginArguments, PluginArgument
@@ -55,34 +56,20 @@ class BilibiliHLSStreamWorker(HLSStreamWorker):
     def __init__(self, *args, **kwargs):
         self.parent = None
         self.playlist_reloads = 0
+        self.playlist_expire = None
         super(BilibiliHLSStreamWorker, self).__init__(*args, **kwargs)
 
-    def _reload_playlist(self, text, url):
-        url = self.parent.update_playlist()
-        self.playlist_reloads += 1
-        playlist = load_hls_playlist(
-            text,
-            url,
-        )
-        if (
-            self.stream.disable_ads
-            and self.playlist_reloads == 1
-            and not next((s for s in playlist.segments if not s.ad), False)
-        ):
-            log.info("Waiting for pre-roll ads to finish, be patient")
-
-        return playlist
+    def reload_playlist(self):
+        if not self.playlist_expire or time.time() - self.playlist_expire < 60 * 10:
+            self.playlist_expire = time.time() + 60 * 60
+            url = next(self.reader.stream.plugin.update_playlist())
+            self.stream.url = url
+        return super(BilibiliHLSStreamWorker, self).reload_playlist()
 
     def _set_playlist_reload_time(self, playlist, sequences):
-        if self.stream.low_latency and len(sequences) > 0:
-            self.playlist_reload_time = sequences[-1].segment.duration
-        else:
-            super(BilibiliHLSStreamWorker, self)._set_playlist_reload_time(playlist, sequences)
+        self.playlist_reload_time = 3
 
     def process_sequences(self, playlist, sequences):
-        if self.stream.low_latency and self.playlist_reloads == 1 and not playlist.has_prefetch_segments:
-            log.info("This is not a low latency stream")
-
         return super(BilibiliHLSStreamWorker, self).process_sequences(playlist, sequences)
 
 
@@ -101,6 +88,7 @@ LOW_LATENCY_MAX_LIVE_EDGE = 2
 class BilibiliHLSStream(HLSStream):
     def __init__(self, *args, **kwargs):
         super(BilibiliHLSStream, self).__init__(*args, **kwargs)
+        self.plugin = None
 
     def open(self):
         reader = BilibiliHLSStreamReader(self)
@@ -159,7 +147,7 @@ class Bilibili(Plugin):
                 log.error('Netloc: {0} with error {1}'.format(p.netloc, r.status_code))
                 continue
             log.debug('Netloc: {0}'.format(p.netloc))
-            return url
+            yield url
 
 
     def _get_streams(self):
@@ -180,10 +168,11 @@ class Bilibili(Plugin):
             'platform': 'web',
         }'''
         name = "source"
-        url = self.update_playlist()
-        stream = BilibiliHLSStream.parse_variant_playlist(self.session, url)
-        stream.parent = self
-        yield name, stream
+        for url in self.update_playlist():
+            #stream = BilibiliHLSStream.parse_variant_playlist(self.session, url)
+            stream = BilibiliHLSStream(self.session, url)
+            stream.plugin = self
+            yield name, stream
 
 
 __plugin__ = Bilibili
