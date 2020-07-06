@@ -63,7 +63,7 @@ class BilibiliHLSStreamWorker(HLSStreamWorker):
         if not self.playlist_expire or time.time() - self.playlist_expire < 60 * 10:
             self.playlist_expire = time.time() + 60 * 60
             url = next(self.reader.stream.plugin.update_playlist())
-            self.stream.url = url
+            self.stream.args["url"] = url
         return super(BilibiliHLSStreamWorker, self).reload_playlist()
 
     def _set_playlist_reload_time(self, playlist, sequences):
