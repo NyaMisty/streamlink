@@ -109,6 +109,7 @@ class TwitCastingWsClient(Thread):
             log.debug("Stopping WebSocket client...")
             self.stopped.set()
             self.ws.close()
+            self.buffer.close()
 
     def run(self):
         if self.stopped.wait(0):
