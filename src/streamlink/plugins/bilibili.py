@@ -134,7 +134,11 @@ class Bilibili(Plugin):
             return
 
         for stream_list in room["durl"]:
-            url = stream_list["url"]
+            _url = stream_list["url"]
+            url = _url
+            if "https://d1--cn-gotcha104.bilivideo.com" in url:
+                url = url.replace("https://d1--cn-gotcha104.bilivideo.com", "http://3hq4yf8r2xgz9.cfc-execute.su.baidubce.com")
+
             # check if the URL is available
             log.trace('URL={0}'.format(url))
             r = self.session.http.get(url,
@@ -147,7 +151,7 @@ class Bilibili(Plugin):
                 log.error('Netloc: {0} with error {1}'.format(p.netloc, r.status_code))
                 continue
             log.debug('Netloc: {0}'.format(p.netloc))
-            yield url
+            yield url#.replace("https://", "hls://").replace("http://", "hls://")
 
 
     def _get_streams(self):
@@ -172,7 +176,10 @@ class Bilibili(Plugin):
             #stream = BilibiliHLSStream.parse_variant_playlist(self.session, url)
             stream = BilibiliHLSStream(self.session, url)
             stream.plugin = self
+            #for c in stream:
+            #    stream[c].plugin = self
             yield name, stream
+            #return stream
 
 
 __plugin__ = Bilibili
