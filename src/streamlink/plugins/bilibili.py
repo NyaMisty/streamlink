@@ -136,8 +136,8 @@ class Bilibili(Plugin):
         for stream_list in room["durl"]:
             _url = stream_list["url"]
             url = _url
-            if "https://d1--cn-gotcha104.bilivideo.com" in url:
-                url = url.replace("https://d1--cn-gotcha104.bilivideo.com", "http://3hq4yf8r2xgz9.cfc-execute.su.baidubce.com")
+            if "d1--cn-gotcha104.bilivideo.com" in url:
+                url = url.replace("d1--cn-gotcha104.bilivideo.com", "3hq4yf8r2xgz9.cfc-execute.su.baidubce.com")
 
             # check if the URL is available
             log.trace('URL={0}'.format(url))
