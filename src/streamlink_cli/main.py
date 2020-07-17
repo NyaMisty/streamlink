@@ -971,13 +971,16 @@ def main():
 
     # Console output should be on stderr if we are outputting
     # a stream to stdout.
+    console_out = sys.stderr
+    '''
     if args.stdout or args.output == "-" or args.record_and_pipe:
         console_out = sys.stderr
     else:
         console_out = sys.stdout
-
+    '''
     # We don't want log output when we are printing JSON or a command-line.
-    silent_log = any(getattr(args, attr) for attr in QUIET_OPTIONS)
+    #silent_log = any(getattr(args, attr) for attr in QUIET_OPTIONS)
+    silent_log = False
     log_level = args.loglevel if not silent_log else "none"
     setup_logging(console_out, log_level)
     setup_console(console_out)
