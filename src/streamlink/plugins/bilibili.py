@@ -125,7 +125,8 @@ class Bilibili(Plugin):
     def update_playlist(self):
         params = {
             'cid': self.room_id,
-            'qn': '4',
+            'qn': '20000',
+            'quality': 10000,
             'platform': 'h5',
         }
         res = self.session.http.get(self.options.get("apihost") + API_URL, params=params)
