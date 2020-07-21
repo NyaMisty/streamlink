@@ -144,7 +144,7 @@ class Bilibili(Plugin):
             log.trace('URL={0}'.format(url))
             r = self.session.http.get(url,
                                       retries=0,
-                                      timeout=3,
+                                      timeout=15,
                                       stream=True,
                                       acceptable_status=(200, 403, 404, 405))
             p = urlparse(url)
