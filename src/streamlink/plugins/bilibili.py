@@ -140,6 +140,8 @@ class Bilibili(Plugin):
             if "d1--cn-gotcha104.bilivideo.com" in url:
                 url = url.replace("d1--cn-gotcha104.bilivideo.com", "3hq4yf8r2xgz9.cfc-execute.su.baidubce.com")
 
+            if "d1--cn-gotcha103.bilivideo.com" in url:
+                continue
             # check if the URL is available
             log.trace('URL={0}'.format(url))
             r = self.session.http.get(url,
