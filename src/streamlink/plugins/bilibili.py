@@ -134,13 +134,17 @@ class Bilibili(Plugin):
         if not room:
             return
 
+        _url = None
+        onlyQiniu = False
         for stream_list in room["durl"]:
+            onlyQiniu = False
             _url = stream_list["url"]
             url = _url
             if "d1--cn-gotcha104.bilivideo.com" in url:
                 url = url.replace("d1--cn-gotcha104.bilivideo.com", "3hq4yf8r2xgz9.cfc-execute.su.baidubce.com")
 
             if "d1--cn-gotcha103.bilivideo.com" in url:
+                onlyQiniu = True
                 continue
             # check if the URL is available
             log.trace('URL={0}'.format(url))
@@ -155,6 +159,9 @@ class Bilibili(Plugin):
                 continue
             log.debug('Netloc: {0}'.format(p.netloc))
             yield _url#.replace("https://", "hls://").replace("http://", "hls://")
+
+        if onlyQiniu and _url is not None:
+            yield _url
 
 
     def _get_streams(self):
