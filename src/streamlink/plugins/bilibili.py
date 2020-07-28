@@ -158,10 +158,10 @@ class Bilibili(Plugin):
                 log.error('Netloc: {0} with error {1}'.format(p.netloc, r.status_code))
                 continue
             log.debug('Netloc: {0}'.format(p.netloc))
-            yield _url#.replace("https://", "hls://").replace("http://", "hls://")
+            yield _url.replace("https://", "http://")#.replace("https://", "hls://").replace("http://", "hls://")
 
         if onlyQiniu and _url is not None:
-            yield _url
+            yield _url.replace("https://", "http://")
 
 
     def _get_streams(self):
