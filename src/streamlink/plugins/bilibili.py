@@ -142,7 +142,8 @@ class Bilibili(Plugin):
             onlyQiniu = False
             _url = stream_list["url"]
             if 'd1--cn-gotcha01.bilivideo.com' in _url:
-                r = self.session.http.get(_url,
+                newurl = _url.replace("d1--cn-gotcha01.bilivideo.com/", "3hq4yf8r2xgz9.cfc-execute.su.baidubce.com/101/")
+                r = self.session.http.get(newurl,
                                       retries=0,
                                       timeout=15,
                                       acceptable_status=(301, 302),
@@ -150,7 +151,7 @@ class Bilibili(Plugin):
                 _url = r.headers.get("Location", _url)
             url = _url
             if "d1--cn-gotcha104.bilivideo.com" in url:
-                url = url.replace("d1--cn-gotcha104.bilivideo.com", "3hq4yf8r2xgz9.cfc-execute.su.baidubce.com")
+                url = url.replace("d1--cn-gotcha104.bilivideo.com/", "3hq4yf8r2xgz9.cfc-execute.su.baidubce.com/104/")
 
             if "d1--cn-gotcha103.bilivideo.com" in url:
                 onlyQiniu = True
