@@ -321,6 +321,9 @@ class YouTube(Plugin):
         if info.get("player_response", {}).get("videoDetails", {}).get("isLive"):
             log.debug("This video is live.")
             is_live = True
+        else:
+            #log.error("This video is not a live. (abort)")
+            raise PluginError("This video is not a live. (abort)")
 
         streams = {}
         protected = False
@@ -337,6 +340,9 @@ class YouTube(Plugin):
             name = stream_info["qualityLabel"]
 
             streams[name] = stream
+
+        if not streams:
+            raise PluginError("No playable stream for youtube, maybe member-only (abort)")
 
         if not is_live:
             streams = self._create_adaptive_streams(info, streams)
