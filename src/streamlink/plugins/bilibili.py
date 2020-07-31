@@ -136,9 +136,18 @@ class Bilibili(Plugin):
 
         _url = None
         onlyQiniu = False
-        for stream_list in room["durl"]:
+        urls = list(room["durl"])
+        urls.sort(key=lambda x: x['url'], reverse=True) # make gotcha01 in the front
+        for stream_list in urls:
             onlyQiniu = False
             _url = stream_list["url"]
+            if 'd1--cn-gotcha01.bilivideo.com' in _url:
+                r = self.session.http.get(_url,
+                                      retries=0,
+                                      timeout=15,
+                                      acceptable_status=(301, 302),
+                                      allow_redirects=False)
+                _url = r.headers.get("Location", _url)
             url = _url
             if "d1--cn-gotcha104.bilivideo.com" in url:
                 url = url.replace("d1--cn-gotcha104.bilivideo.com", "3hq4yf8r2xgz9.cfc-execute.su.baidubce.com")
