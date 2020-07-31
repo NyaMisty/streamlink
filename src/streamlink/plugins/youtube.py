@@ -338,7 +338,7 @@ class YouTube(Plugin):
             is_live = True
         else:
             #log.error("This video is not a live. (abort)")
-            #raise PluginError("This video is not a live. (abort)")
+            raise PluginError("This video is not a live. (abort)")
             pass
 
         streams = {}
@@ -349,6 +349,7 @@ class YouTube(Plugin):
             protected = True
             log.debug("This video may be protected.")
 
+        '''
         for stream_info in info.get("player_response", {}).get("streamingData", {}).get("formats", []):
             if "url" not in stream_info:
                 continue
@@ -357,11 +358,9 @@ class YouTube(Plugin):
 
             streams[name] = stream
 
-        if not streams:
-            raise PluginError("No playable stream for youtube, possible reason: %s (abort)" % info.get("reason"))
-
         if not is_live:
             streams = self._create_adaptive_streams(info, streams)
+        '''
 
         hls_manifest = info.get("player_response", {}).get("streamingData", {}).get("hlsManifestUrl")
         if hls_manifest:
@@ -373,9 +372,12 @@ class YouTube(Plugin):
             except IOError as err:
                 log.warning("Failed to extract HLS streams: {0}", err)
 
-        if not streams and protected:
-            raise PluginError("This plugin does not support protected videos, "
+        if not streams:
+            if protected:
+                raise PluginError("This plugin does not support protected videos, "
                               "try youtube-dl instead")
+            else:
+                raise PluginError("No playable stream for youtube, possible reason: %s (abort)" % info.get("reason"))
 
         return streams
 
