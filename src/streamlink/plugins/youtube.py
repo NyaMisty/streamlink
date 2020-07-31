@@ -91,10 +91,13 @@ _url_re = re.compile(r"""(?x)https?://(?:\w+\.)?youtube\.com
     )
 """)
 
+API_HOST = "https://www.youtube.com"
 
 class YouTube(Plugin):
-    _oembed_url = "https://www.youtube.com/oembed"
-    _video_info_url = "https://youtube.com/get_video_info"
+    #_oembed_url = "https://www.youtube.com/oembed"
+    #_video_info_url = "https://youtube.com/get_video_info"
+    _oembed_url = "/oembed"
+    _video_info_url = "/get_video_info"
 
     _oembed_schema = validate.Schema(
         {
@@ -135,6 +138,12 @@ class YouTube(Plugin):
             "api-key",
             sensitive=True,
             help=argparse.SUPPRESS  # no longer used
+        ),
+        PluginArgument(
+            "apihost",
+            metavar="APIHOST",
+            default=API_HOST,
+            help="Use custom api host url to bypass bilibili's cloud blocking"
         )
     )
 
@@ -189,7 +198,7 @@ class YouTube(Plugin):
             "url": "https://www.youtube.com/watch?v={0}".format(self.video_id),
             "format": "json"
         }
-        res = self.session.http.get(self._oembed_url, params=params)
+        res = self.session.http.get(self.options.get("apihost") + self._oembed_url, params=params)
         data = self.session.http.json(res, schema=self._oembed_schema)
         self.author = data["author_name"]
         self.title = data["title"]
@@ -286,7 +295,7 @@ class YouTube(Plugin):
             params = {"video_id": video_id}
             params.update(_params)
             #print(self._video_info_url, params)
-            res = self.session.http.get(self._video_info_url, params=params)
+            res = self.session.http.get(self.options.get("apihost") + self._video_info_url, params=params)
             info_parsed = parse_query(res.content if is_py2 else res.text, name="config", schema=_config_schema)
             #print(info_parsed)
             player_response = info_parsed.get("player_response", {})
@@ -296,6 +305,12 @@ class YouTube(Plugin):
                 log.debug("get_video_info - {0}: {1}".format(
                     count, reason)
                 )
+                if playability_status.get("status") == "UNPLAYABLE":
+                    if u'\u4f1a\u5458' in reason:
+                        # member only
+                        info_parsed["reason"] = reason
+                        break
+
                 continue
             self.author = player_response.get("videoDetails", {}).get("author")
             self.title = player_response.get("videoDetails", {}).get("title")
@@ -323,7 +338,8 @@ class YouTube(Plugin):
             is_live = True
         else:
             #log.error("This video is not a live. (abort)")
-            raise PluginError("This video is not a live. (abort)")
+            #raise PluginError("This video is not a live. (abort)")
+            pass
 
         streams = {}
         protected = False
@@ -342,7 +358,7 @@ class YouTube(Plugin):
             streams[name] = stream
 
         if not streams:
-            raise PluginError("No playable stream for youtube, maybe member-only (abort)")
+            raise PluginError("No playable stream for youtube, possible reason: %s (abort)" % info.get("reason"))
 
         if not is_live:
             streams = self._create_adaptive_streams(info, streams)

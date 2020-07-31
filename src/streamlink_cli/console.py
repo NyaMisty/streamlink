@@ -79,7 +79,7 @@ class ConsoleOutput(object):
             obj = obj.__json__()
 
         msg = json.dumps(obj, cls=JSONEncoder,
-                         indent=2)
+                         indent=2, ensure_ascii=False)
         self.msg(u"{0}", msg)
 
         if isinstance(obj, dict) and obj.get("error"):
