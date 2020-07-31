@@ -169,6 +169,7 @@ class Bilibili(Plugin):
                 continue
             log.debug('Netloc: {0}'.format(p.netloc))
             yield _url.replace("https://", "http://")#.replace("https://", "hls://").replace("http://", "hls://")
+            break
 
         if onlyQiniu and _url is not None:
             yield _url.replace("https://", "http://")
