@@ -337,7 +337,7 @@ class YouTube(Plugin):
             log.debug("This video is live.")
             is_live = True
         else:
-            #log.error("This video is not a live. (abort)")
+            log.error("This video is not a live. (abort)")
             raise PluginError("This video is not a live. (abort)")
             pass
 
