@@ -488,6 +488,9 @@ class Streamlink(object):
         user_input_requester = self.get_option("user-input-requester")
         api.http = self.http
 
+        if not any([c in name for c in ["bilibili", "youtube", "twitcasting"]]):
+            return
+
         module = imp.load_module(name, file, pathname, desc)
 
         if hasattr(module, "__plugin__"):
