@@ -3,7 +3,7 @@ import re
 import time
 
 from streamlink.compat import urlparse
-from streamlink.plugin import Plugin, PluginArguments, PluginArgument
+from streamlink.plugin import Plugin, PluginArguments, PluginArgument, PluginError
 from streamlink.plugin.api import validate, useragents
 from streamlink.stream import HTTPStream
 from streamlink.stream import (
@@ -185,6 +185,8 @@ class Bilibili(Plugin):
         room_id_json = self.session.http.json(res_room_id, schema=_room_id_schema)
         self.room_id = room_id_json['room_id']
         if room_id_json['live_status'] != SHOW_STATUS_ONLINE:
+            log.error("This video is not a live. (abort)")
+            raise PluginError("This video is not a live. (abort)")
             return
 
         '''params = {
