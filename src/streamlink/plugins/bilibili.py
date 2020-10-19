@@ -148,9 +148,17 @@ class Bilibili(Plugin):
                                       timeout=15,
                                       acceptable_status=(301, 302),
                                       allow_redirects=False)
-                _url = r.headers.get("Location", _url)
+                if r.status_code == 302:
+                    _url = r.headers.get("Location", _url)
+                else:
+                    new_url = r.text.splitlines()[-1]
+                    if new_url.startswith("http"):
+                        _url = new_url
             url = _url
             if "d1--cn-gotcha104.bilivideo.com" in url:
+                url = url.replace("d1--cn-gotcha104.bilivideo.com/", "a5mh2a1mc3ghf.cfc-execute.gz.baidubce.com/104/")
+
+            if "d1--cn-gotcha105.bilivideo.com" in url:
                 url = url.replace("d1--cn-gotcha104.bilivideo.com/", "a5mh2a1mc3ghf.cfc-execute.gz.baidubce.com/104/")
 
             if "d1--cn-gotcha103.bilivideo.com" in url:
