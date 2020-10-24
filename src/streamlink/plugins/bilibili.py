@@ -180,7 +180,7 @@ class Bilibili(Plugin):
             break
 
         if onlyQiniu and _url is not None:
-            yield _url.replace("https://", "http://")
+            yield _url.replace("https://", "http://").replace("d1--cn-gotcha103.bilivideo.com/", "shnode.misty.moe:49980")
 
 
     def _get_streams(self):
