@@ -108,7 +108,13 @@ class Bilibili(Plugin):
             metavar="APIHOST",
             default=API_HOST,
             help="Use custom api host url to bypass bilibili's cloud blocking"
-        )
+        ),
+        PluginArgument(
+            "lowquality",
+            metavar="LOWQN",
+            default=False,
+            help="Use low quality"
+        ),
     )
 
     @classmethod
@@ -125,11 +131,12 @@ class Bilibili(Plugin):
     def update_playlist(self):
         params = {
             'cid': self.room_id,
-            'qn': '20000',
+            'qn': '20000' if not self.options.get("apihost") else '0',
             'quality': 10000,
             'platform': 'h5',
         }
         res = self.session.http.get(self.options.get("apihost") + API_URL, params=params)
+        log.debug(res.json())
         room = self.session.http.json(res, schema=_room_stream_list_schema)
         if not room:
             return
@@ -191,7 +198,13 @@ class Bilibili(Plugin):
         match = _url_re.match(self.url)
         channel = match.group("channel")
         res_room_id = self.session.http.get(self.options.get("apihost") + ROOM_API.format(channel))
-        room_id_json = self.session.http.json(res_room_id, schema=_room_id_schema)
+        log.debug(res_room_id.json())
+        _room_id_json = res_room_id.json()
+        try:
+            room_id_json = self.session.http.json(res_room_id, schema=_room_id_schema)
+        except:
+            log.info("Error during processing json: %s", _room_id_json)
+            raise
         self.room_id = room_id_json['room_id']
         if room_id_json['live_status'] != SHOW_STATUS_ONLINE:
             log.error("This video is not a live. (abort)")
